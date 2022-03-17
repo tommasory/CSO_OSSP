@@ -7,20 +7,18 @@ from solution import solution
 class CSO:
     def __init__(self, pars):
         self.max_efos = pars[[x[0] for x in pars].index('max_efos')][1]
-        self.swarm_size = pars[[x[0] for x in pars].index('swarm_size')][1]
-        self.C1 = pars[[x[0] for x in pars].index('c1')][1]
-        self.SMP = pars[[x[0] for x in pars].index('SMP')][1] 
-        self.SRD = pars[[x[0] for x in pars].index('SRD')][1]
-        self.CDC = pars[[x[0] for x in pars].index('CDC')][1]
-        self.SPC = pars[[x[0] for x in pars].index('SPC')][1]
-        self.MR = pars[[x[0] for x in pars].index('mr')][1]
+        self.swarm_size = pars[[x[0] for x in pars].index('n')][1]
+        self.smp = pars[[x[0] for x in pars].index('smp')][1] 
+        self.spc = pars[[x[0] for x in pars].index('spc')][1]
+        self.srd = pars[[x[0] for x in pars].index('srd')][1]
+        self.cdc = pars[[x[0] for x in pars].index('cdc')][1]
+        self.mr = pars[[x[0] for x in pars].index('mr')][1]
+        self.max_velocity = 1
 
     def evolve(self, f, d: int):
-        self.function = f
         y = np.zeros(self.max_efos, float)
         self.best = cat(d, f)
-        num_seeking = int(((self.MR * self.swarm_size) / self.swarm_size*2))
-        behavior_pattern = self.generate_behavior(num_seeking)
+        behavior_pattern = self.generate_behavior()
 
         # Create the initial swarm and define the best solution
         swarm = []
@@ -42,22 +40,24 @@ class CSO:
         count = self.swarm_size
         for steps in range(1, max_steps):
             for p in range(self.swarm_size):
-                swarm[p].move(self.C1, self.SMP, self.SRD, self.CDC, self.SPC, self.best.cells)
+                swarm[p].move(self.smp, self.srd, self.cdc, self.spc, self.max_velocity, self.best.cells)
                 if swarm[p].fitness < self.best.fitness:
                     self.best.from_cat(swarm[p])
                 y[count] = self.best.fitness
                 count += 1
                 
-            behavior_pattern = self.generate_behavior(num_seeking)
+            behavior_pattern = self.generate_behavior()
             for p in range(self.swarm_size):
                 swarm[p].behavior = behavior_pattern[p]
 
         return y
 
-    def generate_behavior(self, num_seeking):
+    def generate_behavior(self):
         behavior_pattern = [Behavior.TRACING] * self.swarm_size
-        for _ in range(num_seeking):
-            behavior_pattern[random.randint(0, self.swarm_size-1)] = Behavior.SEEKING
+        for _ in range(self.swarm_size):
+            sm = random.random() < self.mr
+            if sm:
+                behavior_pattern[random.randint(0, self.swarm_size-1)] = Behavior.SEEKING
         return behavior_pattern
 
     def __str__(self):

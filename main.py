@@ -2,6 +2,7 @@ import numpy as np
 from algorithms.CSO import CSO
 from diff_time import diff_time
 from problems.ossp import ossp
+import random
 
 if __name__ == '__main__':
 
@@ -14,13 +15,12 @@ if __name__ == '__main__':
 
     my_cso = CSO([
         ['max_efos', max_iterations], 
-        ['swarm_size', 20],
-        ['c1',2],
-        ['SMP',3],
-        ['SRD',2],
-        ['CDC',3],
-        ['SPC',True],
-        ['mr',2]
+        ['n', 20],
+        ['smp',5],
+        ['spc',True],
+        ['srd',random.randint(0, my_ossp.size-1)],
+        ['cdc',3],
+        ['mr',0.30]
     ])
 
     x = np.arange(max_iterations)
